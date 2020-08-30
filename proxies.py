@@ -3,9 +3,16 @@ import requests
 from lxml import etree
 import random
 import time
+import os
 
 
-def proxy_spider(pages, max_change_porxies_times=50, ip_pool_name='../ips_pool.csv'):
+def proxy_spider(pages, max_change_porxies_times=50, ip_pool_name='./ips_pool.csv'):
+    """
+    抓取 XiciDaili.com 的 http类型-代理ip-和端口号
+    将所有抓取的ip存入 raw_ips.csv 待处理, 可用 check_proxies() 检查爬取到的代理ip是否可用
+    :param pages:要抓取多少页
+    :return:无返回
+    """
     with open(ip_pool_name, 'w') as f:
         f.write('')
     s = requests.session()
@@ -44,7 +51,7 @@ def proxy_spider(pages, max_change_porxies_times=50, ip_pool_name='../ips_pool.c
             check_proxies(http, host, port, ip_pool_name=ip_pool_name)  # 检查提取的代理ip是否可用
 
 
-def check_proxies(http, host, port, test_url='http://www.baidu.com', ip_pool_name='../ips_pool.csv'):
+def check_proxies(http, host, port, test_url='http://www.baidu.com', ip_pool_name='./ips_pool.csv'):
     """
     检测给定的ip信息是否可用
     根据http,host,port组成proxies,对test_url进行连接测试,如果通过,则保存在 ips_pool.csv 中
@@ -56,7 +63,7 @@ def check_proxies(http, host, port, test_url='http://www.baidu.com', ip_pool_nam
     """
     proxies = {http: host + ':' + port}
     try:
-        res = requests.get(test_url, proxies=proxies, timeout=2, verify=False)
+        res = requests.get(test_url, proxies=proxies, timeout=2)
         if res.status_code == 200:
             with open(ip_pool_name, 'a+') as f:
                 f.write(','.join([http, host, port]) + '\n')
@@ -64,9 +71,10 @@ def check_proxies(http, host, port, test_url='http://www.baidu.com', ip_pool_nam
         print(e)
 
 
-def check_local_ip(fn, test_url, ip_pool_name='../ips_pool.csv'):
+def check_local_ip(fn, test_url, ip_pool_name='./ips_pool.csv'):
     """
     检查存放在本地ip池的代理ip是否可用
+
     通过读取fn内容,加载每一条ip对test_url进行连接测试,链接成功则储存在 ./utils/ips_pool.csv 文件中
     :param fn: filename,储存代理ip的文件名
     :param test_url: 要进行测试的ip
@@ -94,12 +102,15 @@ def check_local_ip(fn, test_url, ip_pool_name='../ips_pool.csv'):
             continue
 
 
-def get_proxy(ip_pool_name='../ips_pool.csv'):
+# def get_proxy(ip_pool_name='./ips_pool.csv', fresh_pool=False):
+def get_proxy(ip_pool_name='../ips_pool.csv', fresh_pool=False):
     """
     从ip池获得一个随机的代理ip
     :param ip_pool_name: str,存放ip池的文件名,
     :return: 返回一个proxies字典,形如:{'HTTPS': '106.12.7.54:8118'}
     """
+    if not os.path.exists(ip_pool_name) or fresh_pool:
+        proxy_spider(pages=5)
     with open(ip_pool_name, 'r') as f:
         datas = f.readlines()
     ran_num = random.choice(datas)
@@ -109,5 +120,5 @@ def get_proxy(ip_pool_name='../ips_pool.csv'):
 
 
 if __name__ == '__main__':
-    proxy_spider(pages=5)
+    # proxy_spider(pages=5)
     print(get_proxy())
