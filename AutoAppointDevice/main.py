@@ -16,10 +16,15 @@ _desc_ = '''
 def run(chrome, target_dates, target_times):
     print(f'即将自动登录...')
     chrome.find_element_by_id('login-username').send_keys('20520160154055')
-    chrome.find_element_by_id('login-password').send_keys('******')
+    chrome.find_element_by_id('login-password').send_keys('091218')
     chrome.find_element_by_id('LoginButton').click()
+    while True:
+        cur_hour = time.strftime('%H', time.localtime(time.time()))
+        if cur_hour != 23:
+            time.sleep(0.5)
+        else:
+            break
     for date, timestamp in zip(target_dates, target_times):
-        time.sleep(0.5)
         print(f'即将自动预约时间段：{date[0]} {timestamp[0]}~{date[1]} {timestamp[1]}...')
         chrome.get('http://121.192.177.40/lfsms/personbook/timeadd?insid=65603&f=person&c=lfsmspersonbooktimeadd')
         chrome.execute_script(js_target_datetime.replace('{{startTime}}', f'{date[0]} {timestamp[0]}').replace('{{endTime}}', f'{date[1]} {timestamp[1]}'))
@@ -32,6 +37,7 @@ def run(chrome, target_dates, target_times):
         sample_count.send_keys('1234')
         chrome.execute_script('$("#formId").submit();')
         print(f'本时间段预约结束！')
+    time.sleep(2)
     print('此次预约已经全部完成，请点击谷歌浏览器查看！')
     chrome.get('http://121.192.177.40/lfsms/personbook/time?f=book&c=lfsmspersonbooktime')
 
@@ -52,7 +58,7 @@ if __name__ == '__main__':
     chrome = webdriver.Chrome(executable_path=r'./chromedriver.exe')
     chrome.get('http://open.xmu.edu.cn/Login?returnUrl=http%3A%2F%2Fopen.xmu.edu.cn%2Foauth2%2Fauthorize%3Fclient_id%3D1089%26response_type%3Dcode')
     scheduler = BackgroundScheduler()
-    scheduler.add_job(run, 'date', run_date=f'{cur_date} 22:59:55', args=(chrome, target_dates, target_times))
+    scheduler.add_job(run, 'date', run_date=f'{cur_date} 22:55:00', args=(chrome, target_dates, target_times))
     scheduler.start()
     while True:
         cmd = input('请输入特定命令来执行: ')
