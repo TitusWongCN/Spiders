@@ -8,7 +8,7 @@ _desc_ = '''
 ----------------------------------------------------------------
 ---->  软件将会按照预设的时间和规则自动执行任务，请耐心等待！
 ---->  如果需要远程关机，请在本窗口输入：shutdown然后回车
----->  有任何问题请及时微信与我联系！
+---->  有任何问题请及时联系公众号：TitusCosmos！
 ****************************************************************
 '''
 
@@ -20,7 +20,7 @@ def run(chrome, target_dates, target_times):
     chrome.find_element_by_id('LoginButton').click()
     for date, timestamp in zip(target_dates, target_times):
         time.sleep(0.5)
-        print(f'即将自动预约...')
+        print(f'即将自动预约时间段：{date[0]} {timestamp[0]}~{date[1]} {timestamp[1]}...')
         chrome.get('http://121.192.177.40/lfsms/personbook/timeadd?insid=65603&f=person&c=lfsmspersonbooktimeadd')
         chrome.execute_script(js_target_datetime.replace('{{startTime}}', f'{date[0]} {timestamp[0]}').replace('{{endTime}}', f'{date[1]} {timestamp[1]}'))
         sample_name = chrome.find_element_by_id('CAR_Tbookinghassample_SampleName')
@@ -31,8 +31,9 @@ def run(chrome, target_dates, target_times):
         sample_count = chrome.find_element_by_id('CAR_Tbookinghassample_SampleCount')
         sample_count.send_keys('1234')
         chrome.execute_script('$("#formId").submit();')
-        print(f'本次预约结束！')
-    print('DONE')
+        print(f'本时间段预约结束！')
+    print('此次预约已经全部完成，请点击谷歌浏览器查看！')
+    chrome.get('http://121.192.177.40/lfsms/personbook/time?f=book&c=lfsmspersonbooktime')
 
 if __name__ == '__main__':
     print(_desc_)
