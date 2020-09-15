@@ -20,10 +20,11 @@ def run(chrome, target_dates, target_times):
     chrome.find_element_by_id('LoginButton').click()
     while True:
         cur_hour = time.strftime('%H', time.localtime(time.time()))
-        if cur_hour != 23:
+        if cur_hour != '23':
             time.sleep(0.5)
         else:
             break
+    print('已成功登录！')
     for date, timestamp in zip(target_dates, target_times):
         print(f'即将自动预约时间段：{date[0]} {timestamp[0]}~{date[1]} {timestamp[1]}...')
         chrome.get('http://121.192.177.40/lfsms/personbook/timeadd?insid=65603&f=person&c=lfsmspersonbooktimeadd')
@@ -57,9 +58,13 @@ if __name__ == '__main__':
     print(f'程序将在临近23:00:00时自动登录，请勿关闭本窗口和浏览器窗口！')
     chrome = webdriver.Chrome(executable_path=r'./chromedriver.exe')
     chrome.get('http://open.xmu.edu.cn/Login?returnUrl=http%3A%2F%2Fopen.xmu.edu.cn%2Foauth2%2Fauthorize%3Fclient_id%3D1089%26response_type%3Dcode')
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(run, 'date', run_date=f'{cur_date} 22:55:00', args=(chrome, target_dates, target_times))
-    scheduler.start()
+    login_timestamp = time.mktime(time.strptime(f'{cur_date} 22:55:00', '%Y-%m-%d %H:%M:%S'))
+    if time.time() > login_timestamp:
+        run(chrome, target_dates, target_times)
+    else:
+        scheduler = BackgroundScheduler()
+        scheduler.add_job(run, 'date', run_date=f'{cur_date} 22:55:00', args=(chrome, target_dates, target_times))
+        scheduler.start()
     while True:
         cmd = input('请输入特定命令来执行: ')
         if cmd == 'shutdown':
