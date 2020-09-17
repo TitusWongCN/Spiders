@@ -14,6 +14,7 @@ _desc_ = '''
 
 
 def run(chrome, target_dates, target_times):
+    print(f"当前时间为：{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}")
     print(f'即将自动登录...')
     chrome.find_element_by_id('login-username').send_keys('20520160154055')
     chrome.find_element_by_id('login-password').send_keys('091218')
@@ -25,6 +26,7 @@ def run(chrome, target_dates, target_times):
         else:
             break
     print('已成功登录！')
+    print(f"当前时间为：{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}")
     for date, timestamp in zip(target_dates, target_times):
         print(f'即将自动预约时间段：{date[0]} {timestamp[0]}~{date[1]} {timestamp[1]}...')
         chrome.get('http://121.192.177.40/lfsms/personbook/timeadd?insid=65603&f=person&c=lfsmspersonbooktimeadd')
@@ -38,12 +40,14 @@ def run(chrome, target_dates, target_times):
         sample_count.send_keys('1234')
         chrome.execute_script('$("#formId").submit();')
         print(f'本时间段预约结束！')
+        print(f"当前时间为：{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}")
     time.sleep(2)
     print('此次预约已经全部完成，请点击谷歌浏览器查看！')
     chrome.get('http://121.192.177.40/lfsms/personbook/time?f=book&c=lfsmspersonbooktime')
 
 if __name__ == '__main__':
     print(_desc_)
+    print(f"当前时间为：{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}")
     cur_date = time.strftime('%Y-%m-%d', time.localtime(time.time()))
     print(f'当前日期为：{cur_date}')
     target_date = time.strftime('%Y-%m-%d', time.localtime(time.time() + 7*24*60*60))
