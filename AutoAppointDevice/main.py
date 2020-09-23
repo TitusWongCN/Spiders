@@ -19,12 +19,6 @@ def run(chrome, target_dates, target_times):
     chrome.find_element_by_id('login-username').send_keys('20520160154055')
     chrome.find_element_by_id('login-password').send_keys('091218')
     chrome.find_element_by_id('LoginButton').click()
-    while True:
-        cur_hour = time.strftime('%H', time.localtime(time.time()))
-        if cur_hour != '23':
-            time.sleep(0.5)
-        else:
-            break
     print('已成功登录！')
     print(f"当前时间为：{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}")
     for date, timestamp in zip(target_dates, target_times):
@@ -32,12 +26,26 @@ def run(chrome, target_dates, target_times):
         chrome.get('http://121.192.177.40/lfsms/personbook/timeadd?insid=65603&f=person&c=lfsmspersonbooktimeadd')
         chrome.execute_script(js_target_datetime.replace('{{startTime}}', f'{date[0]} {timestamp[0]}').replace('{{endTime}}', f'{date[1]} {timestamp[1]}'))
         sample_name = chrome.find_element_by_id('CAR_Tbookinghassample_SampleName')
-        while not sample_name:
-            sample_name = chrome.find_element_by_id('CAR_Tbookinghassample_SampleName')
-            time.sleep(0.2)
+        # while not sample_name:
+        #     sample_name = chrome.find_element_by_id('CAR_Tbookinghassample_SampleName')
+        #     time.sleep(0.2)q2z
         sample_name.send_keys('1234')
         sample_count = chrome.find_element_by_id('CAR_Tbookinghassample_SampleCount')
         sample_count.send_keys('1234')
+        while True:
+            cur_time = time.strftime('%H:%M:%S', time.localtime(time.time()))
+            if int(cur_time.split(':')[0]) != 23:
+                if int(cur_time.split(':')[1]) < 59:
+                    print(f"当前时间为：{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}")
+                    time.sleep(1)
+                else:
+                    if int(cur_time.split(':')[2]) < 57:
+                        print(f"当前时间为：{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}")
+                        time.sleep(0.5)
+                    else:
+                        time.sleep(0.05)
+            else:
+                break
         chrome.execute_script('$("#formId").submit();')
         print(f'本时间段预约结束！')
         print(f"当前时间为：{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}")
@@ -53,10 +61,10 @@ if __name__ == '__main__':
     target_date = time.strftime('%Y-%m-%d', time.localtime(time.time() + 7*24*60*60))
     print(f'要预约的日期为：{target_date}')
     target_next_date = time.strftime('%Y-%m-%d', time.localtime(time.time() + 8*24*60*60))
-    target_times = [('22:30:00', '00:00:00'), ]
+    target_times = [('22:30:00', '00:00:00'), ('00:00:00', '08:00:00')]
     for target_time in target_times:
         print(f'要预约的时间段为：{target_time[0]} ~ {target_time[1]}')
-    target_dates = [(target_date, target_next_date), ]
+    target_dates = [(target_date, target_next_date), (target_date, target_date)]
     js_target_datetime = '$("#startTime").val("{{startTime}}");$("#endTime").val("{{endTime}}");$("#FC-Form").submit();'
     print(f'正在打开浏览器...')
     print(f'程序将在临近23:00:00时自动登录，请勿关闭本窗口和浏览器窗口！')
