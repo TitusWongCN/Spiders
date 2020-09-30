@@ -39,14 +39,20 @@ def run(chrome, target_dates, target_times):
                     print(f"当前时间为：{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}")
                     time.sleep(1)
                 else:
-                    if int(cur_time.split(':')[2]) < 57:
+                    if int(cur_time.split(':')[2]) < 59:
                         print(f"当前时间为：{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}")
                         time.sleep(0.5)
                     else:
-                        time.sleep(0.05)
+                        break
             else:
                 break
-        chrome.execute_script('$("#formId").submit();')
+        retry = 0
+        while True:
+            chrome.execute_script('$("#formId").submit();')
+            retry += 1
+            if retry > 9:
+                break
+            time.sleep(0.2)
         print(f'本时间段预约结束！')
         print(f"当前时间为：{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}")
     time.sleep(2)
